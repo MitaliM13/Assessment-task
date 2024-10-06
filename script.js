@@ -18,6 +18,7 @@ function displayData(data) {
     div.innerHTML = ""
 
     data.results.forEach((item, index) => {
+
         const category = document.createElement("h3")
         category.innerHTML = `<strong>Category: ${item.category}</strong>`
         div.appendChild(category)
@@ -73,3 +74,4 @@ const correct = (button, correctAns, questionDiv) => {
 function upDateScore(){
     scoreDisplay.innerText = `Score: ${score}`
 }
+
