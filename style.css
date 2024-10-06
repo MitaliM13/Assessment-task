@@ -1,0 +1,98 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+    background-color: #fdf6e3; /* Soft pastel background */
+    font-family: 'Arial', sans-serif;
+    color: #555; /* Softer text color */
+}
+
+#elements {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 25px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05); /* Lighter shadow for softer effect */
+    background-color: #fce4ec; /* Light pink background for the card */
+}
+
+#elements div {
+    margin-bottom: 20px;
+}
+
+p {
+    font-size: 18px;
+    font-weight: bold;
+    color: #6d6875; /* Soft muted purple text */
+    margin-bottom: 10px;
+}
+
+h3 {
+    padding: 20px;
+    font-size: 22px;
+    color: #6c757d; /* Muted greyish text for headings */
+}
+
+button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 28px;
+    margin: 5px;
+    background-color: #a3d5d3; /* Soft pastel teal */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+button:hover {
+    background-color: #7fbfbd; /* Darker pastel teal on hover */
+}
+
+button:active {
+    transform: scale(0.97); /* Slight shrinking effect when clicked */
+}
+
+.correct {
+    background-color: #98c1d9; /* Soft pastel blue for correct answer */
+    color: white;
+}
+
+.incorrect {
+    background-color: #ffb4a2; /* Pastel coral for incorrect answer */
+    color: white;
+}
+
+.feedback {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 16px;
+    color: #6d6875;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 20px;
+    }
+
+    #elements {
+        padding: 15px;
+    }
+
+    button {
+        width: 100%; /* Responsive buttons for mobile */
+    }
+}
