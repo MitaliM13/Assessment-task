@@ -1,74 +1,114 @@
 const url = "https://opentdb.com/api.php?amount=30";
-const elementsDiv = document.getElementById("elements");
+const div = document.getElementById("elements");
 const scoreDisplay = document.getElementById("score");
+const nextButton = document.getElementById("next");
+const prevButton = document.getElementById("prev");
+
 let score = 0;
+let currentQuestionIndex = 0;
+let quizDataArray = [];
 
-// IIFE to fetch quiz data and start the app immediately
-(async () => {
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        renderQuiz(data.results);
-    } catch (error) {
-        console.error("Error fetching data", error);
-    }
-})();
+// Fetch quiz data using async/await
+const fetchQuizData = async () => {
+  try {
+    const response = await fetch(url);
+    const { results } = await response.json(); // Destructuring the result
+    quizDataArray = results;
+    renderQuestion(currentQuestionIndex);
+    updateNavButtons();
+  } catch (error) {
+    console.error("Error fetching data", error);
+  }
+};
+fetchQuizData();
 
-const renderQuiz = (questions) => {
-    elementsDiv.innerHTML = "";  // Clear previous content
-
-    questions.forEach((question, index) => {
-        const questionContainer = document.createElement("div");
-        questionContainer.innerHTML = `
-            <h3>Category: ${question.category}</h3>
-            <p><strong>Question ${index + 1}:</strong> ${question.question}</p>
-        `;
-
-        const shuffledAnswers = shuffleAnswers([...question.incorrect_answers, question.correct_answer]);
-
-        shuffledAnswers.forEach(answer => {
-            const button = createAnswerButton(answer, question.correct_answer, questionContainer);
-            questionContainer.appendChild(button);
-        });
-
-        elementsDiv.appendChild(questionContainer);
-    });
+// Render current question
+const renderQuestion = (index) => {
+  const { category, question, correct_answer, incorrect_answers } = quizDataArray[index];
+  div.innerHTML = `
+    <h3><strong>Category: ${category}</strong></h3>
+    <div class="question">
+      <p><strong>Question ${index + 1}:</strong> ${question}</p>
+      <div class="answers">
+        ${shuffleAnswers(correct_answer, incorrect_answers).map(answer => 
+          `<button class="btn">${answer}</button>`).join('')}
+      </div>
+    </div>
+  `;
+  nextButton.disabled = true; // Disable next button initially
+  addAnswerEventListeners(correct_answer); // Add event listeners for answers
 };
 
-const createAnswerButton = (answer, correctAnswer, questionContainer) => {
-    const button = document.createElement("button");
-    button.innerText = answer;
-    button.classList.add("btn");
-
-    button.addEventListener("click", () => handleAnswerClick(button, correctAnswer, questionContainer));
-
-    return button;
+// Shuffle answers and return array
+const shuffleAnswers = (correct, incorrect) => {
+  return [...incorrect, correct].sort(() => Math.random() - 0.5);
 };
 
-const handleAnswerClick = (button, correctAnswer, questionContainer) => {
-    const existingFeedback = questionContainer.querySelector(".feedback");
-    if (existingFeedback) existingFeedback.remove();  // Remove any previous feedback
-
-    const feedback = document.createElement("p");
-    feedback.classList.add("feedback");
-
-    if (button.innerText === correctAnswer) {
-        button.classList.add("correct");
-        feedback.innerText = "Correct!";
-        feedback.style.color = "green";
-        score++;
-    } else {
-        button.classList.add("incorrect");
-        feedback.innerText = `Incorrect! The correct answer was: ${correctAnswer}`;
-        feedback.style.color = "red";
-    }
-
-    questionContainer.appendChild(feedback);
-    updateScore();
+// Add event listeners to all answer buttons
+const addAnswerEventListeners = (correctAnswer) => {
+  const answerButtons = div.querySelectorAll(".btn");
+  
+  answerButtons.forEach(button => {
+    button.addEventListener("click", (e) => handleAnswerSelection(e, correctAnswer, answerButtons));
+  });
 };
 
-const shuffleAnswers = (answers) => answers.sort(() => Math.random() - 0.5);
+// Handle answer selection logic
+const handleAnswerSelection = (e, correctAnswer, buttons) => {
+  const selectedButton = e.target;
+  const isCorrect = selectedButton.innerText === correctAnswer;
+  
+  disableAllButtons(buttons);
+  
+  if (isCorrect) {
+    selectedButton.classList.add("correct");
+    updateScore(1);
+    nextButton.disabled = false; // Enable next button after correct answer
+    displayFeedback("Correct!", "green");
+  } else {
+    selectedButton.classList.add("incorrect");
+    displayFeedback("Incorrect!", "red");
+  }
+};
 
-const updateScore = () => {
-    scoreDisplay.innerText = `Score: ${score}`;
+
+// Update score display
+const updateScore = (points) => {
+  score += points;
+  scoreDisplay.innerText = `Score: ${score}`;
+};
+
+// Display feedback message
+const displayFeedback = (message, color) => {
+  const feedback = document.createElement('p');
+  feedback.innerText = message;
+  feedback.style.color = color;
+  feedback.classList.add("feedback");
+  div.appendChild(feedback);
+  
+  setTimeout(() => feedback.remove(), 2000); // Remove feedback after 2 seconds
+};
+
+// Handle next question
+nextButton.addEventListener("click", () => {
+  if (currentQuestionIndex < quizDataArray.length - 1) {
+    currentQuestionIndex++;
+    renderQuestion(currentQuestionIndex);
+    updateNavButtons();
+  }
+});
+
+// Handle previous question
+prevButton.addEventListener("click", () => {
+  if (currentQuestionIndex > 0) {
+    currentQuestionIndex--;
+    renderQuestion(currentQuestionIndex);
+    updateNavButtons();
+  }
+});
+
+// Update navigation button visibility
+const updateNavButtons = () => {
+  prevButton.disabled = currentQuestionIndex === 0;
+  nextButton.disabled = true; // Next is always disabled until correct answer is selected
 };
